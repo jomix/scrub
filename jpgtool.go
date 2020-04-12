@@ -6,17 +6,21 @@
 // after deleting any App, JPEG, or comment segment. That is,
 // it scrubs all metadata from the input and writes the result
 // to standard output.
-package main
+package main // import "robpike.io/cmd/scrub"
 
 import (
+	"bytes"
+	"crypto/sha256"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
 )
 
 var iFlag = flag.Bool("i", false, "overwrite the input in place")
+var sFlag = flag.Bool("s", false, "sha256 of core image data")
 
 func main() {
 	log.SetPrefix("scrub: ")
@@ -76,6 +80,13 @@ func scrub(f *os.File) {
 	}
 	if *iFlag {
 		ck(ioutil.WriteFile(flag.Arg(0), s.out, 0664))
+	} else if *sFlag {
+		h := sha256.New()
+		r := bytes.NewReader(s.out)
+		if _, err := io.Copy(h, r); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%x\n", h.Sum(nil))
 	} else {
 		os.Stdout.Write(s.out)
 	}
