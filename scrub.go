@@ -6,7 +6,7 @@
 // after deleting any App, JPEG, or comment segment. That is,
 // it scrubs all metadata from the input and writes the result
 // to standard output.
-package main // import "robpike.io/cmd/scrub"
+package main
 
 import (
 	"flag"
@@ -32,6 +32,7 @@ func main() {
 	case 1:
 		file := flag.Arg(0)
 		f, err := os.Open(file)
+		defer f.Close()
 		ck(err)
 		scrub(f)
 	default:
